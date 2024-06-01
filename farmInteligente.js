@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farm Inteligente
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.tribalwars.com.br/*&screen=am_farm*
@@ -10,69 +10,88 @@
 // ==/UserScript==
 
 // Função principal para executar as ações
+var lightTroops;
+var cancelFor = false;
 async function executeActions() {
-    var saqueTotal = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/max_loot/1.png'][data-title='Saque completo: os seus soldados saquearam tudo o que foi possível de carregar.']");
-    var saqueParcial = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/max_loot/0.png'][data-title='Saque parcial: Seus soldados saquearam tudo o que encontram.']");
-
-    if (saqueTotal.length > 0) {
-        console.log("saqueTotal encontrada. Iniciando sequência de ações...");
-
-        for (let saque of saqueTotal) {
-            var villageRowB = saque.closest('tr');
-            await delayAction(randomDelay(300, 400)); // Aplica o atraso dentro do loop de saques totais
-            console.log("Enviando Templates B");
-            var templateB = villageRowB.querySelector("td:nth-child(10) > a");
-            if (templateB) {
-                templateB.click();
-            } else {
-                console.log("Link de Template B não encontrado.");
-            }
+    checkLight();
+    if(cancelFor == true){
+        return;
+    }
+    console.log("Iniciando execução do script...");
+    // Função auxiliar para realizar saque
+    async function performSaque(saque, childIndex, templateName) {
+        checkLight();
+        if(cancelFor == true){
+        return;
+    }
+        var villageRow = saque.closest('tr');
+        await delayAction(randomDelay(300, 400)); // Aplica o atraso dentro do loop de saques
+        console.log(`Enviando Template ${templateName}`);
+        var templateLink = villageRow.querySelector(`td:nth-child(${childIndex}) > a`);
+        if (templateLink) {
+            templateLink.click();
+        } else {
+            console.log(`Link de Template ${templateName} não encontrado.`);
         }
-    } else if (saqueParcial.length > 0){
-        console.log("Saques parciais encontrados: ", saqueParcial.length);
-
-        console.log("saqueParcial encontrada. Iniciando sequência de ações...");
-        for (let saque of saqueParcial) {
-            var villageRowA = saque.closest('tr');
-            if (villageRowA) {
-                console.log("Enviando Templates A");
-                var templateA = villageRowA.querySelector("td:nth-child(9) > a");
-                if (templateA) {
-                    templateA.click();
-                } else {
-                    console.log("Link de Template A não encontrado.");
-                }
-            }
-            await delayAction(randomDelay(300, 400)); // Aplica o atraso dentro do loop de saques parciais
-        }
-    } else {
-        console.log("Nenhuma bolinha vermelha ou amarela encontrada.");
     }
 
-    var lightTroops = parseInt(document.querySelector("#light").innerText.trim());
-    if (lightTroops >= 4) {
-        console.log("Mais de 3 cavalos leves disponíveis. Continuando a execução do script.");
-        await executeActions(); // Chama a função novamente
+    // Seleciona todas as imagens com o src e data-title especificados
+    var saqueTotal = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/max_loot/1.png'][data-title='Saque completo: os seus soldados saquearam tudo o que foi possível de carregar.']");
+    if (saqueTotal.length > 0) {
+        console.log("saqueTotal encontrada. Iniciando sequência de ações...");
+        for (let saque of saqueTotal) {
+    if(cancelFor == true){
+        break;
     } else {
-        console.log("Menos de 4 cavalos leves disponíveis. Parando a execução do script e recarregando a página.");
+        await performSaque(saque, 10, 'B');
+        if(cancelFor == true){
+            break;
+        }
+    }
+}
+    }
 
+    // Depois de processar saque total, verifica saque parcial
+    var saqueParcial = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/max_loot/0.png'][data-title='Saque parcial: Seus soldados saquearam tudo o que encontram.']");
+    if (saqueParcial.length > 0) {
+        console.log("saqueParcial encontrada. Iniciando sequência de ações...");
+        for (let saque of saqueParcial) {
+    if(cancelFor == true){
+        break;
+    } else {
+        await performSaque(saque, 9, 'A');
+        if(cancelFor == true){
+            break;
+        }
+    }
+}
+    } else if (saqueTotal.length == 0) {
+        console.log("Nenhum saque encontrado.");
+    }
+}
+
+// Função para gerar um atraso aleatório entre min e max milissegundos
+function randomDelay(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Função para criar uma promessa de atraso
+function delayAction(delay) {
+    return new Promise(resolve => setTimeout(resolve, delay));
+}
+
+function checkLight(){
+    lightTroops = parseInt(document.querySelector("#light").innerText.trim());
+    if (lightTroops < 4) {
+        console.log("Menos de 4 cavalos leves disponíveis. Parando a execução do script e recarregando a página.");
         // Recarregar a página com um intervalo de tempo aleatório entre 60.000 e 120.000 milissegundos
         const reloadDelay = randomDelay(60000, 120000);
         console.log(`Recarregando a página em ${reloadDelay} milissegundos.`);
         setTimeout(() => {
             location.reload();
         }, reloadDelay);
-
-        return; // Parar a execução do script
+        cancelFor = true;
     }
 }
-
-function randomDelay(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function delayAction(delay) {
-    return new Promise(resolve => setTimeout(resolve, delay));
-}
-
+// Chama a função principal para iniciar a execução do script
 executeActions();
