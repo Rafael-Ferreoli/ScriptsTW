@@ -12,8 +12,8 @@
 // Função principal para executar as ações
 var lightTroops;
 var cancelFor = false;
-var saqueParcial = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/max_loot/0.png'][data-title='Saque parcial: Seus soldados saquearam tudo o que encontram.']");
-var saqueTotal = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/max_loot/1.png'][data-title='Saque completo: os seus soldados saquearam tudo o que foi possível de carregar.']");
+var saqueParcial = document.querySelectorAll("img[src*='graphic/max_loot/0.png'][data-title='Saque parcial: Seus soldados saquearam tudo o que encontram.']");
+var saqueTotal = document.querySelectorAll("img[src*='graphic/max_loot/1.png'][data-title='Saque completo: os seus soldados saquearam tudo o que foi possível de carregar.']");
 
 async function executeActions() {
     checkLight();
@@ -92,8 +92,8 @@ function delayAction(delay) {
 }
 
 function checkLight() {
-    saqueParcial = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/max_loot/0.png'][data-title='Saque parcial: Seus soldados saquearam tudo o que encontram.']");
-    saqueTotal = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/max_loot/1.png'][data-title='Saque completo: os seus soldados saquearam tudo o que foi possível de carregar.']");
+    var saqueParcial = document.querySelectorAll("img[src*='graphic/max_loot/0.png'][data-title='Saque parcial: Seus soldados saquearam tudo o que encontram.']");
+    var saqueTotal = document.querySelectorAll("img[src*='graphic/max_loot/1.png'][data-title='Saque completo: os seus soldados saquearam tudo o que foi possível de carregar.']");
     lightTroops = parseInt(document.querySelector("#light").innerText.trim());
     if (lightTroops < 4 || (saqueTotal.length == 0 && saqueParcial.length == 0)) {
         console.log("Menos de 4 cavalos leves disponíveis ou saques finalizados. Parando a execução do script e recarregando a página.");

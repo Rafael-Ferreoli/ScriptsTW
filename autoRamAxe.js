@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.2
 // @description  try to take over the world!
-// @author       Rafael
+// @author       You
 // @match        https://*.tribalwars.com.br/*&screen=am_farm*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tribalwars.com.br
 // @grant        none
@@ -17,8 +17,8 @@ function randomDelay(min, max) {
 // Função principal para executar as ações
 function executeActions() {
     // Seleciona todas as imagens com o src e data-title especificados
-    var redDots = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/dots/red.png'][data-title='Derrotado']");
-    var yellowDots = document.querySelectorAll("img[src='https://dsbr.innogamescdn.com/asset/62e187d5/graphic/dots/yellow.png'][data-title='Perdas']");
+    var redDots = document.querySelectorAll("img[src*='graphic/dots/red.png'][data-title='Derrotado']");
+    var yellowDots = document.querySelectorAll("img[src*='graphic/dots/yellow.png'][data-title='Perdas']");
 
     // Verifica se existe alguma bolinha vermelha ou amarela
     if (redDots.length > 0 || yellowDots.length > 0) {
@@ -49,10 +49,10 @@ function executeActions() {
                         return;
                     }
 
-                    // Preenche o campo com o valor 4
+                    // Preenche o campo com o valor 7
                     var ramInput = document.querySelector("#unit_input_ram");
                     if (ramInput) {
-                        ramInput.value = 4;
+                        ramInput.value = 7;
                         console.log("Campo de entrada de aríete preenchido.");
                     } else {
                         console.log("Campo de entrada de aríete não encontrado.");
